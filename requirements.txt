@@ -1,0 +1,12 @@
+django
+django-environ
+psycopg2
+django-bootstrap3
+django-compressor
+django-libsass
+nltk
+scipy
+sklearn
+django_tables2
+django-pure-pagination
+pillow

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block head_title %}Register{% endblock head_title %}
+
+{% block main %}
+<main>
+
+<section class="vpad">
+<div class="container">
+<div class="row">
+
+  <div class="col-sm-6 col-sm-offset-3">
+  <div class="panel panel-default">
+
+    <div class="panel-heading">
+      <h4 class="panel-title">Register</h4>
+    </div>{# panel-heading #}
+
+    {# non-field errors #}
+    {% bootstrap_form_errors form type='non_fields' %}
+
+    <div class="panel-body">
+    <form action="" method="post">{% csrf_token %}
+
+      {% bootstrap_field form.first_name layout='horizontal' form_group_class='form-group row' %}
+      {% bootstrap_field form.last_name layout='horizontal' form_group_class='form-group row'  %}
+      {% bootstrap_field form.email layout='horizontal' form_group_class='form-group row'  %}
+      {% bootstrap_field form.username layout='horizontal' form_group_class='form-group row'  %}
+      {% bootstrap_field form.password1 layout='horizontal' form_group_class='form-group row'  %}
+      {% bootstrap_field form.password2 layout='horizontal' form_group_class='form-group row'  %}
+
+      <div class="row">
+      <div class="col-sm-9 col-sm-offset-3">
+        <button type="submit" class="btn btn-primary btn-block">Register</button>
+      </div>{# col #}
+      </div>{# row #}
+    </form>
+    </div>{# panel-body #}
+
+    <div class="panel-footer">
+      <p>Already registered? <a href="{% url 'login' %}">Login now</a></p>
+    </div>{# panel-footer #}
+
+  </div>{# panel #}
+  </div>{# col #}
+
+</div>{# row #}
+</div>{# container #}
+</section>
+
+</main>
+{% endblock main %}

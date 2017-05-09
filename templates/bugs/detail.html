@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block head_title %}[#{{ bug.id }}] {{ bug.title }}{% endblock head_title %}
+
+{% block styles_compress %}
+<style>
+.progress { height: 10px; }
+</style>
+{% endblock styles_compress %}
+
+{% block main %}
+
+<header>
+<div class="container">
+  <h1>
+    <small>[#{{ bug.id }}]</small> {{ bug.title }}
+  </h1>
+</div>{# container #}
+</header>
+
+{# Action #}
+{% if bug.assignee == request.user %}
+<section class="vpad-sm grey-bg">
+<div class="container">
+  <a href="update" class="btn btn-default">Update Bug Report</a>
+</div>{# container #}
+</section>
+{% endif %}
+
+<section class="vpad-sm">
+<div class="container">
+  <div class="row">
+
+    {# Column for current bug report #}
+    <div class="col-md-7">
+      {% if bug.master %}
+      <div class="alert alert-info">
+        <p>Marked as duplicate of <a href="{{ bug.master.get_absolute_url }}">#{{ bug.master.id }}</a>.</p>
+      </div>
+      {% endif %}
+
+      <div class="panel panel-default">
+      <div class="panel-body">
+      <div class="row">
+
+        <div class="col-sm-5">
+          <h4>Bug report info:</h4>
+          <ul>
+            <li><strong>Submitter:</strong> <a href="#">{{ bug.submitter }}</a></li>
+            <li><strong>Submitted on:</strong> {{ bug.created|date }}</li>
+            <li><strong>Category:</strong> <a href="#">{{ bug.category }}</a></li>
+            <li><strong>Severity:</strong> {{ bug.get_severity_display }}</li>
+            <li><strong>Status:</strong> {{ bug.get_status_display }}</li>
+          </ul>
+        </div>{# col #}
+
+        <div class="col-sm-7">
+          <h4>System info:</h4>
+          <ul>
+            <li><strong>Operating system:</strong> {{ bug.os }}</li>
+            <li><strong>RAM:</strong> {{ bug.ram }}</li>
+            <li><strong>Video RAM:</strong> {{ bug.vram }}</li>
+          </ul>
+        </div>{# col #}
+
+      </div>{# row #}
+      </div>{# panel-body #}
+      </div>{# panel #}
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Bug description:</h3>
+        </div>{# panel-heading #}
+        <div class="panel-body">
+          {% if bug.actual %}
+            <h4><strong>Actual behavior:</strong></h4>
+            <p>{{ bug.actual|linebreaks }}</p>
+          {% endif %}
+
+          {% if bug.expected %}
+            <hr>
+            <h4><strong>Expected behavior:</strong></h4>
+            <p>{{ bug.expected|linebreaks }}</p>
+          {% endif %}
+
+          {% if bug.reproduce %}
+            <hr>
+            <h4><strong>Steps to reproduce:</strong></h4>
+            <p>{{ bug.reproduce|linebreaks }}</p>
+          {% endif %}
+        </div>{# panel-body #}
+      </div>{# panel #}
+
+      {# Display images #}
+      <section>
+      {% for img in bug.attachments.all %}
+        <a href="{{ MEDIA_URL }}{{ img.fullpath }}">
+          <img src="{{ MEDIA_URL }}{{ img.fullpath }}" class="img-responsive thumbnail">
+        </a>
+      {% endfor %}
+      </section>
+
+      {# Solution #}
+      {% if bug.solution %}
+        <div class="panel panel-success">
+        <div class="panel-heading">
+          <p class="panel-title">Solution</p>
+        </div>{# panel-heading #}
+        <div class="panel-body">
+          <p>{{ bug.solution|linebreaks }}</p>
+        </div>{# panel-body #}
+        </div>{# panel #}
+      {% endif %}
+    </div>{# col #}
+
+    {# Sidebar #}
+    <div class="col-md-5">
+    <div class="panel panel-default">
+
+      <div class="panel-heading">
+        <p class="panel-title">Similar bug reports</p>
+      </div>{# panel-heading #}
+
+      <div class="list-group">
+      {% for b, s in bug.get_similar_reports %}
+      {% if request.user.is_staff %}
+        <div class="list-group-item">
+        <div class="row">
+
+          <div class="col-xs-2">
+              <div> <p>{{ s|floatformat:0 }}</p></div>
+          <div class="progress">
+          <div class="progress-bar progress-bar-success" style="width: {{ s|floatformat:0 }}%">
+            <span class="sr-only">{{ s|floatformat:0 }}% Complete (success)</span>
+          </div>
+          </div>
+          </div>{# col #}
+
+          <div class="col-xs-10">
+            <a href="{{ b.get_absolute_url }}">{{ b.title }}</a>
+          </div>{# col #}
+        </div>{# row #}
+        </div>{# list-group-item #}
+      {% else %}
+        <div class="list-group-item">
+          <a href="{{ b.get_absolute_url }}">{{ b.title }}</a>
+        </div>{# list-group-item #}
+      {% endif %}
+      {% endfor %}
+      </div>{# list-group #}
+
+    </div>{# panel #}
+    </div>{# col #}
+
+  </div>{# row #}
+
+</div>{# container #}
+</section>
+{% endblock main %}
