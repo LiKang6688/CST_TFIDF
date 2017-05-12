@@ -123,16 +123,27 @@ class BugReport(models.Model):
             Maximum number of similar bugs to returns.
         """
         from info.utils import similarity
-            # , idf, idf_detail, idf_title
+        # , idf, idf_detail, idf_title
 
         candidates = []
-        max_sim = similarity(self.all_text(), self.all_text())
+        max_sim = similarity(self, self)
         for bug in BugReport.objects.filter(category=self.category):
-            candidates.append((similarity(self.all_text(), bug.all_text()), bug.id))
+            # candidates.append((similarity(self.title, bug.title), bug.id))
+            candidates.append((similarity(self, bug), bug.id))
         id_and_sim = [(two, one * 100 / max_sim)
                       for (one, two) in sorted(candidates, reverse=True)[1:min(n, len(candidates))]]
         bug_and_sim = [(BugReport.objects.get(id=id), sim) for id, sim in id_and_sim]
         return bug_and_sim
+        # max_sim = similarity((self, self), bug.id)
+        # return max_sim
+
+    # def get_similar_issues(self, n=10):
+    #
+    #     from info.gensim import all_issues
+    #     candidates = []
+    #     for bug in BugReport.objects.filter(category=self.category):
+    #         candidates.append(all_issues(bug))
+    #     return candidates
 
     def get_possible_duplicates(self, n=10):
         """Returns a list of similar bug reports based on learning model.

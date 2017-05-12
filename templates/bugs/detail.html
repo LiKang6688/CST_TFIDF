@@ -123,6 +123,7 @@
 
       <div class="list-group">
       {% for b, s in bug.get_similar_reports %}
+{#      {% for b in bug.get_similar_issues %}#}
       {% if request.user.is_staff %}
         <div class="list-group-item">
         <div class="row">

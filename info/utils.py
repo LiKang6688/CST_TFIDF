@@ -68,30 +68,46 @@ def tf_detail(bug, term):
 def idf(term):
     """Returns the IDF of a term based on title + description.
     """
-    Da = BugReport.objects.count()
-    Dt = Frequency.objects.filter(term=term).count()
-    return n.log2(float(Da) / (1 + Dt))
+    # da = BugReport.objects.count()
+    # dt = Frequency.objects.filter(term=term).count()
+    # return n.log2(float(da) / (1 + dt))
+    da = Frequency.objects.filter(term=term)
+    if da.count() > 0:
+        return da.first().idf
+    else:
+        return 0
 
 
 def idf_title(term):
     """Returns the IDF of a term based on title.
     """
-    Da = BugReport.objects.count()
-    Dt = FrequencyTitle.objects.filter(term=term).count()
-    return n.log2(float(Da) / (1 + Dt))
+    # da = BugReport.objects.count()
+    # dt = FrequencyTitle.objects.filter(term=term).count()
+    # print("da ", ds[0].idf)
+    # return n.log2(float(da) / (1 + dt))
+    da = FrequencyTitle.objects.filter(term=term)
+    if da.count() > 0:
+        return da.first().idf
+    else:
+        return 0
 
 
 def idf_detail(term):
     """Returns the IDF of a term based on description.
     """
-    Da = BugReport.objects.count()
-    Dt = FrequencyDetail.objects.filter(term=term).count()
-    return n.log2(float(Da) / (1 + Dt))
+    # da = BugReport.objects.count()
+    # dt = FrequencyDetail.objects.filter(term=term).count()
+    # return n.log2(float(da) / (1 + dt))
+    da = FrequencyDetail.objects.filter(term=term)
+    if da.count() > 0:
+        return da.first().idf
+    else:
+        return 0
 
 
 # The similarities
 
-def similarity(text1, text2, idf_func=idf, tf_func=tf):
+def similarity(text1, text2, idf_func=idf_title, tf_func=tf_title):
     """Returns the similarity between text1 and text2 based on the
     given IDF function.
 
@@ -102,10 +118,45 @@ def similarity(text1, text2, idf_func=idf, tf_func=tf):
     idf_func = \{idf, idf_title, idf_detail\}
         The IDF function to use for calculating similarity
     """
-    # common = set(tokenize(text1)).intersection(set(tokenize(text2)))
+    # common = set(tokenize(text1.title)).intersection(set(tokenize(text2.title)))
     # return n.sum([idf_func(w) for w in common])
-    
-
+    tf_vector1 = []
+    idf_vector1 = []
+    tf_idf_vector1 = []
+    tf_vector2 = []
+    idf_vector2 = []
+    tf_idf_vector2 = []
+    dot_product = []
+    tf_idf_sum = 0.0
+    magnitude1 = []
+    magnitude2 = []
+    magnitude1_sum = 0.0
+    magnitude2_sum = 0.0
+    cosine_similarity = 0.0
+    union = set(tokenize(text1.title)).union(set(tokenize(text2.title)))
+    for w in union:
+        tf_vector1.append(tf_func(text1, w))
+        idf_vector1.append(idf_func(w))
+        tf_vector2.append(tf_func(text2, w))
+        idf_vector2.append(idf_func(w))
+    for i in range(len(union)):
+        tf_idf_vector1.append(tf_vector1[i] * idf_vector1[i])
+        tf_idf_vector2.append(tf_vector2[i] * idf_vector2[i])
+        dot_product.append(tf_idf_vector1[i] * tf_idf_vector2[i])
+        # magnitude1 += n.power(tf_idf_vector1[i], 2)
+        magnitude1.append(n.power(tf_idf_vector1[i], 2))
+        # magnitude2 += n.power(tf_idf_vector2[i], 2)
+        magnitude2.append(n.power(tf_idf_vector2[i], 2))
+        # tf_idf_sum += dot_product[i]
+    tf_idf_sum = sum(dot_product)
+    magnitude1_sum = sum(magnitude1)
+    magnitude2_sum = sum(magnitude2)
+    magnitude1_sum = n.sqrt(magnitude1_sum)
+    magnitude2_sum = n.sqrt(magnitude2_sum)
+    if magnitude1 != 0.0 and magnitude2 != 0.0:
+        cosine_similarity = float(tf_idf_sum) / (magnitude1_sum * magnitude2_sum)
+    # return str(cosine_similarity)
+    return cosine_similarity
 
 
 def feature_set(bug1, bug2):

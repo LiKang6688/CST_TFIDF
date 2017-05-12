@@ -8,7 +8,8 @@ class FrequencyTitle(models.Model):
 
     bug = models.ForeignKey(BugReport, related_name='title_frequencies', on_delete=models.CASCADE)
     term = models.CharField('Term', max_length=100, db_index=True)
-    freq = models.FloatField(default=0)
+    freq = models.FloatField(default=0, db_index=True)
+    idf = models.FloatField(default=0, db_index=True)
 
     class Meta:
         unique_together = (('bug', 'term'),)
@@ -27,7 +28,8 @@ class FrequencyDetail(models.Model):
 
     bug = models.ForeignKey(BugReport, related_name='detail_frequencies', on_delete=models.CASCADE)
     term = models.CharField('Term', max_length=100, db_index=True)
-    freq = models.FloatField(default=0)
+    freq = models.FloatField(default=0, db_index=True)
+    idf = models.FloatField(default=0)
 
     class Meta:
         unique_together = (('bug', 'term'),)
@@ -46,7 +48,8 @@ class Frequency(models.Model):
 
     bug = models.ForeignKey(BugReport, related_name='frequencies', on_delete=models.CASCADE)
     term = models.CharField('Term', max_length=100, db_index=True)
-    freq = models.FloatField(default=0)
+    freq = models.FloatField(default=0, db_index=True)
+    idf = models.FloatField(default=0)
 
     class Meta:
         unique_together = (('bug', 'term'),)

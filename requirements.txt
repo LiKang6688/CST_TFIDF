@@ -10,3 +10,7 @@ sklearn
 django_tables2
 django-pure-pagination
 pillow
+gensim
+NumPy
+SciPy
+Cython

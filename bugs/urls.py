@@ -1,6 +1,5 @@
 from django.conf.urls import url
 
-from . import signals
 from .views import BugAdd, BugDetail, BugList, BugUpdate
 
 urlpatterns = [
