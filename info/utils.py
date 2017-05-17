@@ -1,4 +1,5 @@
 import string
+import gensim
 
 import numpy as n
 from bugs.models import BugCategory, BugReport
@@ -156,7 +157,15 @@ def similarity(text1, text2, idf_func=idf_title, tf_func=tf_title):
     if magnitude1 != 0.0 and magnitude2 != 0.0:
         cosine_similarity = float(tf_idf_sum) / (magnitude1_sum * magnitude2_sum)
     # return str(cosine_similarity)
+    # tf_idf_vector1 = [x for x in tf_idf_vector1 if x != 0]
+    # tf_idf_vector2 = [x for x in tf_idf_vector2 if x != 0]
+    # i1 = iter(tf_idf_vector1)
+    # b1 = dict(zip(i1, i1))
+    # i2 = iter(tf_idf_vector2)
+    # b2 = dict(zip(i2, i2))
+    # sim = gensim.matutils.cossim(b1, b2)
     return cosine_similarity
+    # return sim
 
 
 def feature_set(bug1, bug2):
