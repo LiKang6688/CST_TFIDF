@@ -1,4 +1,5 @@
 import os
+import gensim
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -6,6 +7,8 @@ from django.db import models
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import Truncator
+
+from gensim import corpora, similarities
 
 
 class BugCategory(models.Model):
@@ -122,28 +125,39 @@ class BugReport(models.Model):
         n : int
             Maximum number of similar bugs to returns.
         """
-        from info.utils import similarity
+        from info.utils import tokenize, similarity
         # , idf, idf_detail, idf_title
 
-        candidates = []
-        max_sim = similarity(self, self)
-        for bug in BugReport.objects.filter(category=self.category):
-            # candidates.append((similarity(self.title, bug.title), bug.id))
-            candidates.append((similarity(self, bug), bug.id))
-        id_and_sim = [(two, one * 100 / max_sim)
-                      for (one, two) in sorted(candidates, reverse=True)[1:min(n, len(candidates))]]
-        bug_and_sim = [(BugReport.objects.get(id=id), sim) for id, sim in id_and_sim]
-        return bug_and_sim
-        # max_sim = similarity((self, self), bug.id)
-        # return max_sim
+        docs = []
+        bugs = BugReport.objects.all()
+        for bug in reversed(bugs):
+            docs.append(tokenize(bug.title))
+        dictionary = corpora.Dictionary(docs)
+        num_term = len(dictionary)
 
-    # def get_similar_issues(self, n=10):
-    #
-    #     from info.gensim import all_issues
-    #     candidates = []
-    #     for bug in BugReport.objects.filter(category=self.category):
-    #         candidates.append(all_issues(bug))
-    #     return candidates
+        corpus = [dictionary.doc2bow(text) for text in docs]
+        tf_idf = gensim.models.TfidfModel(corpus)
+        index = similarities.SparseMatrixSimilarity(tf_idf[corpus], num_features=num_term)
+
+
+        # candidates = []
+        # max_sim = similarity(self, self)
+        # for bug in BugReport.objects.filter(category=self.category):
+        #     # candidates.append((similarity(self.title, bug.title), bug.id))
+        #     candidates.append((similarity(self, bug), bug.id))
+        # id_and_sim = [(two, one * 100 / max_sim)
+        #               for (one, two) in sorted(candidates, reverse=True)[1:min(n, len(candidates))]]
+        # bug_and_sim = [(BugReport.objects.get(id=id), sim) for id, sim in id_and_sim]
+        # return bug_and_sim
+
+        vec_bow = dictionary.doc2bow(tokenize(self.title))
+        vec_tf_idf = tf_idf[vec_bow]
+        sims = index[vec_tf_idf]
+        id_and_sim = [(one, two)
+                      for (one, two) in sorted(enumerate(sims), key=lambda item: -item[1])[1:min(n, len(sims))]]
+        print(sorted(enumerate(sims), key=lambda item: -item[1]))
+        bug_and_sim = [(BugReport.objects.get(id=id + 1), sim) for id, sim in id_and_sim]
+        return bug_and_sim
 
     def get_possible_duplicates(self, n=10):
         """Returns a list of similar bug reports based on learning model.
