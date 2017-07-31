@@ -1,4 +1,12 @@
+import gensim
+import logging
+
 from django.core.management.base import BaseCommand
+
+from gensim import corpora, similarities
+
+from bugs.utils import tokenize
+from bugs.models import BugReport
 
 
 class Command(BaseCommand):
@@ -6,32 +14,21 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        data = []  # This will finally end up as the training sample
+        logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-        masters = BugReport.objects.filter(master=None)
-        print("There are {} masters.".format(masters.count()))
+        docs = []
+        bugs = BugReport.objects.all()
+        for bug in reversed(bugs):
+            docs.append(tokenize(bug.text()))
 
-        # Create positive training data
-        for master in masters:
-            for duplicate in master.duplicates.all():
-                data.append(get_training_row(master, duplicate, 1))
-            for bug1, bug2 in itertools.combinations(master.duplicates.all(), 2):
-                data.append(get_training_row(bug1, bug2, 1))
+        dictionary = corpora.Dictionary(docs)
+        num_term = len(dictionary)
+        corpus = [dictionary.doc2bow(text) for text in docs]
+        tf_idf = gensim.models.TfidfModel(corpus)
+        index = similarities.SparseMatrixSimilarity(tf_idf[corpus], num_features=num_term)
 
-        n = len(data)
-        print("Generated {} positive samples.".format(n))
+        dictionary.save('issues')
+        tf_idf.save("tf-idf")
+        index.save("index")
 
-        # Create negative training data
-        pairs = [pair for pair in itertools.combinations(masters, 2)]
-        for bug1, bug2 in random.sample(pairs, n):
-            data.append(get_training_row(bug1, bug2, 0))
 
-        data = np.matrix(data)
-        print("Total size of training data: {}".format(data.shape))
-        np.savetxt('training.csv', data)
-
-        model = LearningModel()
-        model.learn(data)
-        model.save()
-
-        print("Successfully learned!")
