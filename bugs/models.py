@@ -66,8 +66,9 @@ class BugReport(models.Model):
     updated = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     # Core important fields
-    title = models.CharField(max_length=255)
-    submitter = models.ForeignKey(User, related_name='submitted_reports', on_delete=models.CASCADE)
+    title = models.CharField(max_length=2555, blank=True)
+    description = models.CharField(max_length=2555, blank=True)
+    # submitter = models.ForeignKey(User, related_name='submitted_reports', on_delete=models.CASCADE)
 
     # Versions
     os = models.CharField("Operating system", blank=True, max_length=100)
@@ -90,9 +91,9 @@ class BugReport(models.Model):
         limit_choices_to={'master': None})
 
     # Solution
-    assignee = models.ForeignKey(
-        User, related_name='assigned_reports', null=True, blank=True, on_delete=models.SET_NULL,
-        limit_choices_to={'is_staff': True})
+    # assignee = models.ForeignKey(
+    #     User, related_name='assigned_reports', null=True, blank=True, on_delete=models.SET_NULL,
+    #     limit_choices_to={'is_staff': True})
     solution = models.TextField(blank=True, null=True, verbose_name='Solution')
 
     class Meta:
@@ -117,6 +118,9 @@ class BugReport(models.Model):
     def all_text(self):
         return " ".join([self.title, self.detail_text()])
 
+    def text(self):
+        return " ".join([self.title, self.reproduce, self.description])
+
     def get_similar_reports(self, n=10):
         """Returns a list of similar bug reports based on textual similarity.
 
@@ -125,13 +129,13 @@ class BugReport(models.Model):
         n : int
             Maximum number of similar bugs to returns.
         """
-        from info.utils import tokenize, similarity
-        # , idf, idf_detail, idf_title
+        from .utils import tokenize
 
         docs = []
         bugs = BugReport.objects.all()
         for bug in reversed(bugs):
-            docs.append(tokenize(bug.title))
+            docs.append(tokenize(bug.text()))
+        # print(docs)
         dictionary = corpora.Dictionary(docs)
         num_term = len(dictionary)
 
@@ -139,6 +143,14 @@ class BugReport(models.Model):
         tf_idf = gensim.models.TfidfModel(corpus)
         index = similarities.SparseMatrixSimilarity(tf_idf[corpus], num_features=num_term)
 
+        vec_bow = dictionary.doc2bow(tokenize(" ".join([self.title, self.reproduce, self.description])))
+        vec_tf_idf = tf_idf[vec_bow]
+        sims = index[vec_tf_idf]*100
+        id_and_sim = [(one, two)
+                      for (one, two) in sorted(enumerate(sims), key=lambda item: -item[1])[0:min(n, len(sims))]]
+        # print(sorted(enumerate(sims), key=lambda item: -item[1]))
+        bug_and_sim = [(BugReport.objects.get(id=id + 1), sim) for id, sim in id_and_sim]
+        return bug_and_sim
 
         # candidates = []
         # max_sim = similarity(self, self)
@@ -149,15 +161,6 @@ class BugReport(models.Model):
         #               for (one, two) in sorted(candidates, reverse=True)[1:min(n, len(candidates))]]
         # bug_and_sim = [(BugReport.objects.get(id=id), sim) for id, sim in id_and_sim]
         # return bug_and_sim
-
-        vec_bow = dictionary.doc2bow(tokenize(self.title))
-        vec_tf_idf = tf_idf[vec_bow]
-        sims = index[vec_tf_idf]
-        id_and_sim = [(one, two)
-                      for (one, two) in sorted(enumerate(sims), key=lambda item: -item[1])[1:min(n, len(sims))]]
-        print(sorted(enumerate(sims), key=lambda item: -item[1]))
-        bug_and_sim = [(BugReport.objects.get(id=id + 1), sim) for id, sim in id_and_sim]
-        return bug_and_sim
 
     def get_possible_duplicates(self, n=10):
         """Returns a list of similar bug reports based on learning model.
@@ -203,3 +206,11 @@ class Attachment(models.Model):
     @python_2_unicode_compatible
     def __str__(self):
         return self.filename()
+
+
+# class Dictionary(models.Model):
+#     dictionary = models.CharField(max_length=255555, blank=True)
+#     num_term = models.IntegerField(blank=True, null=True)
+#     corpus =
+#     tf_idf =
+#     index =

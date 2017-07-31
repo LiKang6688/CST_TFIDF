@@ -19,13 +19,13 @@
 </header>
 
 {# Action #}
-{% if bug.assignee == request.user %}
+{#{% if bug.assignee == request.user %}#}
 <section class="vpad-sm grey-bg">
 <div class="container">
   <a href="update" class="btn btn-default">Update Bug Report</a>
 </div>{# container #}
 </section>
-{% endif %}
+{#{% endif %}#}
 
 <section class="vpad-sm">
 <div class="container">
@@ -46,7 +46,7 @@
         <div class="col-sm-5">
           <h4>Bug report info:</h4>
           <ul>
-            <li><strong>Submitter:</strong> <a href="#">{{ bug.submitter }}</a></li>
+{#            <li><strong>Submitter:</strong> <a href="#">{{ bug.submitter }}</a></li>#}
             <li><strong>Submitted on:</strong> {{ bug.created|date }}</li>
             <li><strong>Category:</strong> <a href="#">{{ bug.category }}</a></li>
             <li><strong>Severity:</strong> {{ bug.get_severity_display }}</li>
@@ -88,6 +88,11 @@
             <h4><strong>Steps to reproduce:</strong></h4>
             <p>{{ bug.reproduce|linebreaks }}</p>
           {% endif %}
+            {% if bug.description %}
+            <hr>
+            <h4><strong>Bug description:</strong></h4>
+            <p>{{ bug.description|linebreaks }}</p>
+          {% endif %}
         </div>{# panel-body #}
       </div>{# panel #}
 
@@ -124,7 +129,7 @@
       <div class="list-group">
       {% for b, s in bug.get_similar_reports %}
 {#      {% for b in bug.get_similar_issues %}#}
-      {% if request.user.is_staff %}
+{#      {% if request.user.is_staff %}#}
         <div class="list-group-item">
         <div class="row">
 
@@ -142,11 +147,11 @@
           </div>{# col #}
         </div>{# row #}
         </div>{# list-group-item #}
-      {% else %}
-        <div class="list-group-item">
-          <a href="{{ b.get_absolute_url }}">{{ b.title }}</a>
-        </div>{# list-group-item #}
-      {% endif %}
+{#      {% else %}#}
+{#        <div class="list-group-item">#}
+{#          <a href="{{ b.get_absolute_url }}">{{ b.title }}</a>#}
+{#        </div>{# list-group-item #}
+{#      {% endif %}#}
       {% endfor %}
       </div>{# list-group #}
 

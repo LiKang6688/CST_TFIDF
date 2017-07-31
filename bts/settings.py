@@ -48,15 +48,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bugs',
-    'accounts',
+
     'bootstrap3',
     'compressor',
-    'info',
+
     'django_tables2',
     'pure_pagination',
     'multiupload',
+
     'learn',
+    'bugs',
+    'accounts',
+    # 'info',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -96,21 +99,21 @@ WSGI_APPLICATION = 'bts.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'HOST': ENV('DB_HOST', default='DEFAULT_DB_HOST'),
-#         'NAME': ENV('DB_NAME', default='DEFAULT_DB_NAME'),
-#         'USER': ENV('DB_USER', default='DEFAULT_DB_USER'),
-#         'PASSWORD': ENV('DB_PASS', default='DEFAULT_DB_PASS'),
-#     }
-# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': 'localhost',
+        'NAME': 'tfidf',
+        'USER': 'postgres',
+        'PASSWORD': 'admin12345678',
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators

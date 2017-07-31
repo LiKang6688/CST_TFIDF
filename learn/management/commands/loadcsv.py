@@ -29,7 +29,7 @@ class Command(BaseCommand):
             return
 
         # Helper functions
-        user = User.objects.get(username="admin")
+        # user = User.objects.get(username="admin")
 
         def cat(name):
             """Returns the category with the given name, creating a new one if required.
@@ -92,19 +92,38 @@ class Command(BaseCommand):
         # 12:= Solution
 
         # Do the work
-        for row in data[1:]:
+        for row in data[0:]:
             r = [e.strip() for e in row]
+            # if r[1]:
+            #     bug = BugReport(
+            #         title=r[1],
+            #         reproduce=r[2],
+            #         description=r[4],
+            #         )
             bug = BugReport(
-                title=r[4],
+                # title=r[4],
+                title=r[1],
                 # os=r[2], ram=r[3], vram=r[4],
-                category=cat(r[1]),
+                # category=cat(r[1]),
+                category=cat("android"),
                 # severity=sev(r[6]),
                 # status=stat(r[3]),
                 # actual=r[8], expected=r[9], reproduce=r[10],
                 # master=report(r[11]),
                 # solution=r[12],
-                submitter=user, assignee=user
-                )
+            )
+            # if r[2]:
+            #     bug = BugReport(
+            #         reproduce=r[2],
+            #     )
+            # if r[4]:
+            #     bug = BugReport(
+            #         description=r[4],
+            #     )
+            # if r[5]:
+            #     bug = BugReport(
+            #         category=r[5],
+            #     )
             bug.save()
             print(bug)
 
