@@ -66,6 +66,7 @@ class BugReport(models.Model):
     updated = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     # Core important fields
+    issue = models.IntegerField(blank=True, null=True)
     title = models.TextField("Summary of issues", blank=True)
     description = models.TextField("description of issues", blank=True)
     # submitter = models.ForeignKey(User, related_name='submitted_reports', on_delete=models.CASCADE)
@@ -136,7 +137,7 @@ class BugReport(models.Model):
         index = gensim.models.TfidfModel.load('index')
 
         vec_bow = dictionary.doc2bow(tokenize(" ".join([self.title, self.reproduce, self.description])))
-        print (vec_bow)
+
         vec_tf_idf = tf_idf[vec_bow]
         sims = index[vec_tf_idf]*100
         id_and_sim = [(one, two)
@@ -173,6 +174,7 @@ class BugReport(models.Model):
         #               for (one, two) in sorted(candidates, reverse=True)[1:min(n, len(candidates))]]
         # bug_and_sim = [(BugReport.objects.get(id=id), sim) for id, sim in id_and_sim]
         # return bug_and_sim
+
 
 class Attachment(models.Model):
     """Represents an attachment image of a bug report"""

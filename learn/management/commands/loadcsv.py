@@ -90,12 +90,13 @@ class Command(BaseCommand):
         # 10:= Reproduce
         # 11:= Master
         # 12:= Solution
-
+        #
         # Do the work
         for row in data[0:]:
             r = [e.strip() for e in row]
             if r[1]:
                 bug = BugReport(
+                    issue=r[0],
                     title=r[1],
                     reproduce=r[2],
                     description=r[4],

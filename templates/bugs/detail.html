@@ -47,6 +47,7 @@
           <h4>Bug report info:</h4>
           <ul>
 {#            <li><strong>Submitter:</strong> <a href="#">{{ bug.submitter }}</a></li>#}
+            <li><strong>Issue id:</strong> {{ bug.issue }}</li>
             <li><strong>Submitted on:</strong> {{ bug.created|date }}</li>
             <li><strong>Category:</strong> <a href="#">{{ bug.category }}</a></li>
             <li><strong>Severity:</strong> {{ bug.get_severity_display }}</li>
@@ -82,17 +83,17 @@
             <h4><strong>Expected behavior:</strong></h4>
             <p>{{ bug.expected|linebreaks }}</p>
           {% endif %}
-
+          {% if bug.description %}
+            <hr>
+            <h4><strong>Bug description:</strong></h4>
+            <p>{{ bug.description|linebreaks }}</p>
+          {% endif %}
           {% if bug.reproduce %}
             <hr>
             <h4><strong>Steps to reproduce:</strong></h4>
             <p>{{ bug.reproduce|linebreaks }}</p>
           {% endif %}
-            {% if bug.description %}
-            <hr>
-            <h4><strong>Bug description:</strong></h4>
-            <p>{{ bug.description|linebreaks }}</p>
-          {% endif %}
+
         </div>{# panel-body #}
       </div>{# panel #}
 

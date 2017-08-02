@@ -54,8 +54,8 @@ INSTALLED_APPS = [
 
     'django_tables2',
     'pure_pagination',
-    'multiupload',
 
+    'multiupload',
     'learn',
     'bugs',
     'accounts',
